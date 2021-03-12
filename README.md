@@ -1,1 +1,1 @@
-# square-races
+# deploy: (ivankononovich.github.io/square-races/)[http://ivankononovich.github.io/square-races/]
