@@ -2,10 +2,14 @@ class Wall extends DynamicObject {
     constructor(props) {
         super(props)
 
-        this.w = Math.floor(window.innerWidth / 60)
+        this.w = Math.floor(window.innerWidth / COUNT_CELLS)
         this.h = window.innerHeight
         this.startPos = {
             prev: {
+                x: window.innerWidth,
+                y: 0,
+            },
+            clearPos: {
                 x: window.innerWidth,
                 y: 0,
             },
@@ -14,13 +18,13 @@ class Wall extends DynamicObject {
         }
         this.pos = { ...this.startPos }
         this.style = 'rgb(102, 0, 51)'
-        this.speed = 5
         this.isPixelMove = true
         this.withoutBorders = true
     }
 
     init() {
         super.init()
+        this.id = Math.random() * Math.random() * Math.random()
         this.hole = []
 
         this.generateHole()
@@ -40,15 +44,22 @@ class Wall extends DynamicObject {
             }
         }
 
-
-        // TODO: transfer control count hole to the wall manager
-        for (let index = 0; index < Math.max(Math.floor(this.getRandomArbitrary(0, 5)), 1); index++) {
+        this.hole = []
+        let generateHole = true
+        while(generateHole) {
             this.hole = [...this.hole, allPos[Math.floor(this.getRandomArbitrary(0, allPos.length - 1))]]
+            if (this.hole.length > this.wallManager.countWallHole) {
+                generateHole = false
+            }
         }
     }
 
     startNewCycle() {
-        this.pos = { ...this.startPos }
+        if (this.wallManager.checkForFreeSpaceForWallSpawn()) {
+            this.generateHole()
+            this.pos = { ...this.startPos }
+            this.id = Math.random() * Math.random() * Math.random()
+        }
     }
 
     checkCrossingBorder() {
@@ -61,7 +72,9 @@ class Wall extends DynamicObject {
     }
 
     render() {
-        this.move({ x: this.speed * -1 })
+        if (this.pos.x + this.w > 0) {
+            this.move({ x: this.speed * -1 })
+        }
         this.checkCrossingBorder()
 
         super.render()

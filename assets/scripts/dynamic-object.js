@@ -1,14 +1,19 @@
 class DynamicObject {
-    constructor({ ctx, renderManager, userSquare }) {
+    constructor({ ctx, renderManager, wallManager, userSquare }) {
         this.ctx = ctx
         this.renderManager = renderManager
         this.userSquare = userSquare
+        this.wallManager = wallManager
         this.mainStyle = 'rgb(0, 0, 51)'
         this.style = 'rgb(0, 0, 51)'
-        this.w = Math.floor(window.innerWidth / 50)
-        this.h = Math.floor(window.innerHeight / 10)
+        this.w = Math.floor(window.innerWidth / COUNT_CELLS)
+        this.h = this.w
         this.pos = {
             prev: {
+                x: 0,
+                y: 0,
+            },
+            clearPos: {
                 x: 0,
                 y: 0,
             },
@@ -41,10 +46,9 @@ class DynamicObject {
             }
         }
 
+        this.pos.clearPos[direction] = this.pos[direction]
         this.pos.prev[direction] = this.pos[direction]
         this.pos[direction] = newDirection
-
-        ctx.clearRect(this.pos.prev.x, this.pos.prev.y, this.w, this.h);
     }
 
     move({ x = 0, y = 0 }) {
@@ -53,21 +57,20 @@ class DynamicObject {
     }
 
     render() {
-        const { x, y, prev } = this.pos
-        ctx.clearRect(prev.x, prev.y, this.w, this.h);
+        const { x, y, clearPos } = this.pos
+        ctx.beginPath()
+        ctx.clearRect(clearPos.x, clearPos.y, this.w + 1, this.h);
 
         ctx.beginPath()
-        ctx.rect(x, y, this.w, this.h)
         ctx.fillStyle = this.style
+        ctx.rect(x, y, this.w, this.h)
         ctx.fill()
 
-        this.pos.prev = { x, y }
+        this.pos.clearPos = { x, y }
     }
 
     init() {
-        this.renderManager.add({
-            priority: this.renderPriority,
-            renderFunction: this.render,
-        }, this.renderId)
+        canvas.height = canvas.height - canvas.height % this.w
+        canvas.style.height = canvas.height
     }
 }

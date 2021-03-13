@@ -32,7 +32,14 @@ class UserSquare extends DynamicObject {
             ]
         }
         this.pulseTime = 1000
+    }
 
+    addScore(id) {
+        this.score.add(id)
+    }
+
+    removeScore(id) {
+        this.score.delete(id)
     }
 
     hadleKeydown(event) {
@@ -79,6 +86,13 @@ class UserSquare extends DynamicObject {
 
     render() {
         super.render()
+
+        ctx.beginPath()
+        this.ctx.font = "20px serif";
+        this.ctx.fillStyle = '#ffffff'
+        this.ctx.textAlign = "center";
+        this.ctx.fillText(this.score.size, this.pos.x + this.w / 2, this.pos.y + this.h / 2);
+
         if (this.collisionEnabled) return
 
         this.style = this.pulseStyle.listStyles[this.pulseStyle.index]
@@ -106,9 +120,15 @@ class UserSquare extends DynamicObject {
         this.renderId = 'UserSquare'
         this.hadleKeydown = this.hadleKeydown.bind(this)
         this.hadleTouchstart = this.hadleTouchstart.bind(this)
+        this.score = new Set()
 
         super.init()
 
         this.handleMove()
+
+        this.renderManager.add({
+            priority: this.renderPriority,
+            renderFunction: this.render,
+        }, this.renderId)
     }
 }
