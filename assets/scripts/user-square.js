@@ -1,80 +1,113 @@
-class UserSquare {
-    constructor({ ctx }) {
-        this.ctx = ctx
-        this.squareStyle = 'green'
-        this.w = 100
-        this.h = 100
-        this.pos = {
-            prev: {
-                x: 0,
-                y: 0,
-            },
-            x: 0,
-            y: 0,
+class UserSquare extends DynamicObject {
+    constructor(props) {
+        super(props)
+
+        this.mainStyle = 'rgba(0, 0, 51, 1)'
+        this.style = this.mainStyle
+
+        this.collisionEnabled = true
+        this.pulseStyle = {
+            index: 0,
+            listStyles: [
+                'rgba(0, 0, 51, 1)',
+                'rgba(0, 0, 51, 0.9)',
+                'rgba(0, 0, 51, 0.8)',
+                'rgba(0, 0, 51, 0.7)',
+                'rgba(0, 0, 51, 0.6)',
+                'rgba(0, 0, 51, 0.5)',
+                'rgba(0, 0, 51, 0.4)',
+                'rgba(0, 0, 51, 0.3)',
+                'rgba(0, 0, 51, 0.2)',
+                'rgba(0, 0, 51, 0.1)',
+                "rgba(0, 0, 51, 0.1)",
+                "rgba(0, 0, 51, 0.2)",
+                "rgba(0, 0, 51, 0.3)",
+                "rgba(0, 0, 51, 0.4)",
+                "rgba(0, 0, 51, 0.5)",
+                "rgba(0, 0, 51, 0.6)",
+                "rgba(0, 0, 51, 0.7)",
+                "rgba(0, 0, 51, 0.8)",
+                "rgba(0, 0, 51, 0.9)",
+                "rgba(0, 0, 51, 1)"
+            ]
         }
+        this.pulseTime = 1000
 
-        this.render = this.render.bind(this)
-
-        this.init()
     }
 
-    calcNewPos({ direction, directionValue, squareSize, windowSize }) {
-        let newDirection = this.pos[direction] + directionValue * this[squareSize]
+    hadleKeydown(event) {
+        const { code } = event
 
-        if (newDirection + this[squareSize] >= window[windowSize]) {
-            return
+        switch (code) {
+            case 'ArrowUp':
+                this.move({ y: -1 })
+                break
+            case 'ArrowDown':
+                this.move({ y: 1 })
+                break
+            case 'ArrowLeft':
+                this.move({ x: -1 })
+                break
+            case 'ArrowRight':
+                this.move({ x: 1 })
+                break
         }
-        if (newDirection < 0) {
-            return
-        }
-
-        this.pos.prev[direction] = this.pos[direction]
-        this.pos[direction] = newDirection
-
-        this.render()
     }
 
-    move({ x = 0, y = 0 }) {
-        this.calcNewPos({ direction: 'x', directionValue: x, squareSize: 'w', windowSize: 'innerWidth' })
-        this.calcNewPos({ direction: 'y', directionValue: y, squareSize: 'h', windowSize: 'innerHeight' })
+    hadleTouchstart(event) {
+        const x = event.touches[0].pageX
+        const y = event.touches[0].pageY
+
+        if (x > this.pos.x + this.w) {
+            this.move({ x: 1 })
+        }
+        if (x < this.pos.x) {
+            this.move({ x: -1 })
+        }
+        if (y > this.pos.y + this.h) {
+            this.move({ y: 1 })
+        }
+        if (y < this.pos.y) {
+            this.move({ y: -1 })
+        }
     }
 
     handleMove() {
-        document.addEventListener('keydown', (event) => {
-            const { code } = event
-
-            switch (code) {
-                case 'ArrowUp':
-                    this.move({ y: -1 })
-                    break
-                case 'ArrowDown':
-                    this.move({ y: 1 })
-                    break
-                case 'ArrowLeft':
-                    this.move({ x: -1 })
-                    break
-                case 'ArrowRight':
-                    this.move({ x: 1 })
-                    break
-            }
-        })
+        document.addEventListener('keydown', this.hadleKeydown)
+        document.addEventListener('touchstart', this.hadleTouchstart)
     }
 
     render() {
-        const { x, y, prev } = this.pos
-        ctx.clearRect(prev.x, prev.y, this.w, this.h);
+        super.render()
+        if (this.collisionEnabled) return
 
-        ctx.beginPath()
+        this.style = this.pulseStyle.listStyles[this.pulseStyle.index]
 
-        ctx.rect(x, y, this.w, this.h)
-        ctx.fillStyle = this.squareStyle
-        ctx.fill()
+        this.pulseStyle.index += 1
 
-        requestAnimationFrame(this.render)
+        if (this.pulseStyle.index > this.pulseStyle.listStyles.length - 1) {
+            this.pulseStyle.index = 0
+        }
+
+        if (performance.now() - this.startCollisionTime > this.pulseTime) {
+            this.collisionEnabled = true
+            this.pulseStyle.index = 0
+            this.style = this.mainStyle
+        }
+    }
+
+    collision() {
+        this.collisionEnabled = false
+        this.startCollisionTime = performance.now()
     }
 
     init() {
-        requestAnimationFrame(this.render)
+        this.renderPriority = Infinity
+        this.renderId = 'UserSquare'
+        this.hadleKeydown = this.hadleKeydown.bind(this)
+        this.hadleTouchstart = this.hadleTouchstart.bind(this)
+
+        super.init()
 
         this.handleMove()
     }

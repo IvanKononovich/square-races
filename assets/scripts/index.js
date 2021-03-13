@@ -3,4 +3,7 @@ canvas.width = window.innerWidth
 canvas.height = window.innerHeight
 const ctx = canvas.getContext('2d')
 
-const userSquare = new UserSquare({ ctx })
+const renderManager = new RenderManager()
+const userSquare = new UserSquare({ ctx, renderManager })
+const wallManager = new WallManager({ ctx, renderManager, userSquare })
+
