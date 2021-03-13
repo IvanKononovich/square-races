@@ -70,7 +70,11 @@ class DynamicObject {
     }
 
     init() {
-        canvas.height = canvas.height - canvas.height % this.w
+        const newHeight = canvas.height - canvas.height % this.w
+        if (canvas.height !== newHeight) {
+            canvas.height = newHeight
+        }
+
         canvas.style.height = canvas.height
     }
 }
