@@ -132,7 +132,7 @@ class WallManager {
                     this.userSquare.collision()
                     this.userSquare.removeScore(pos.id)
                 } else {
-                    this.slowDownWalls(Math.ceil(this.speed / 2))
+                    this.slowDownWalls(Math.min(Math.ceil(this.speed / 2), 5))
                 }
             } 
             if (userXStart > pos.x.end && pos.y.includes(userY)) {
