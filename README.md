@@ -1,1 +1,1 @@
-# deploy: (ivankononovich.github.io/square-races/)[http://ivankononovich.github.io/square-races/index.html]
+# deploy: [ivankononovich.github.io/square-races/](http://ivankononovich.github.io/square-races/index.html)
